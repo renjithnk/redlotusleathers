@@ -23,8 +23,10 @@ jobs:
           PORT: ${{ secrets.FTP_PORT }}
         run: |
           lftp -c "
-          set ftp:ssl-allow no
-          open -u $USERNAME,$PASSWORD $HOST
-          mirror -R --only-newer --verbose ./ ./
+          set ftp:ssl-allow no;
+          set net:timeout 10;
+          set net:max-retries 2;
+          open -p $PORT -u $USERNAME,$PASSWORD $HOST;
+          mirror -R --only-newer --verbose ./ ./public_html;
           bye
           "
