@@ -8,13 +8,29 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
-
-      - name: Deploy
         run: |
-          lftp -c "set ftp:ssl-allow no; open -p ${{ secrets.FTP_PORT }} -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }}; mirror -R --only-newer --verbose ./ ./; bye"
+          sudo apt-get update
+          sudo apt-get install -y lftp
+
+      - name: Deploy via FTP
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          lftp <<EOF
+          set ftp:ssl-allow no
+          set ftp:passive-mode on
+          set net:max-retries 2
+          set net:timeout 20
+          open -p $FTP_PORT -u "$FTP_USERNAME","$FTP_PASSWORD" $FTP_HOST
+          mirror -R --only-newer --verbose ./ ./
+          bye
+          EOF
