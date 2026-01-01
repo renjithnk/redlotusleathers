@@ -3,7 +3,7 @@ name: FTP Deploy to BigRock
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
