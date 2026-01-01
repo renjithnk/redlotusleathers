@@ -3,7 +3,7 @@ name: FTP Deploy to BigRock
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
@@ -23,9 +23,8 @@ jobs:
           PORT: ${{ secrets.FTP_PORT }}
         run: |
           lftp -c "
-          set ftp:ssl-allow no;
-          set ftp:passive-mode true;
-          open -p $PORT -u $USERNAME,$PASSWORD $HOST;
-          mirror -R --only-newer --verbose ./ ./;
+          set ftp:ssl-allow no
+          open -u $USERNAME,$PASSWORD $HOST
+          mirror -R --only-newer --verbose ./ ./
           bye
           "
